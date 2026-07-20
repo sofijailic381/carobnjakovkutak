@@ -320,7 +320,7 @@ input,select,textarea,button{font-family:'Nunito',sans-serif;}
       <sc-if value="{{ submitted }}" hint-placeholder-val="{{ false }}">
         <div style="text-align:center;padding:30px 10px;">
           <div style="width:70px;height:70px;border-radius:50%;background:#e5f6ea;color:#2f9a4f;font-size:34px;display:flex;align-items:center;justify-content:center;margin:0 auto;">✓</div>
-          <h3 style="font-family:'Baloo 2',cursive;font-weight:800;font-size:26px;margin:20px 0 8px;color:#2a2150;">Hvala na prijavi!</h3>
+          <h3 style="font-family:'Baloo 2',cursive;font-weight:800;font-size:26px;margin:20px 0 8px;color:#2a2150;">Hvala! Vaša prijava je uspešno poslata.</h3>
           <p style="color:#6a6386;font-size:16px;line-height:1.6;font-weight:500;margin:0;">Kontaktiraćemo vas u najkraćem roku sa svim detaljima. Vidimo se u Čarobnjakovom kutku! ✦</p>
         </div>
       </sc-if>
@@ -517,8 +517,25 @@ class Component extends DCLogic {
   }
   submit(e) {
     e.preventDefault();
-    this.setState({ submitted: true });
-    try { window.scrollTo({ top: document.getElementById('upis').offsetTop - 40, behavior: 'smooth' }); } catch (err) {}
+    const s = this.state.form;
+    const data = new FormData();
+    data.append('Ime i prezime', s.name);
+    data.append('Telefon', s.phone);
+    data.append('Razred', s.grade);
+    data.append('Program', s.program);
+    data.append('Poruka', s.msg);
+    fetch('https://formspree.io/f/mrenkyzn', {
+      method: 'POST',
+      body: data,
+      headers: { 'Accept': 'application/json' }
+    }).then(r => {
+      if (r.ok) {
+        this.setState({ submitted: true });
+        try { window.scrollTo({ top: document.getElementById('upis').offsetTop - 40, behavior: 'smooth' }); } catch (err) {}
+      } else {
+        alert('Došlo je do greške pri slanju. Pokušajte ponovo.');
+      }
+    }).catch(() => alert('Došlo je do greške pri slanju. Pokušajte ponovo.'));
   }
   renderVals() {
     const s = this.state;
